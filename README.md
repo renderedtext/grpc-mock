@@ -8,7 +8,7 @@ Just add `GrpcMock` to the list of dependencies in mix.exs:
 ```
 def deps do
   [
-    {:grpc_mock, "~> 0.1", only: :test}
+    {:grpc_mock, "~> 0.2", only: :test}
   ]
 end
 ```
