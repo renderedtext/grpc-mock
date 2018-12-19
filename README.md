@@ -3,6 +3,16 @@ Easy gRPC server mocking for [grpc Elixir library](https://github.com/tony612/gr
 
 A lot of concepts and code taken from [mox library](https://github.com/plataformatec/mox).
 
+## Installation
+Just add `GrpcMock` to the list of dependencies in mix.exs:
+```
+def deps do
+  [
+    {:grpc_mock, "~> 0.1", only: :test}
+  ]
+end
+```
+
 ## Example
 
 Create mocked gRPC server:
