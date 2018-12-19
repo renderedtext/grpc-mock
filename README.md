@@ -41,6 +41,9 @@ assert {:ok, reply} = Helloworld.Greeter.Stub.say_hello(channel, request)
 assert reply.message == name
 ```
 
+### Concurrency
+Unlike `mox`, GrpcMock is not thread-safe and cannot be used in concurrent tests.
+
 ## License
 Copyright 2018 RenderedText
 
