@@ -49,8 +49,14 @@ defmodule GrpcMock do
     mock
   end
 
-  def stub(mock, name, code) do
+  def stub(mock, name, code) when is_function(code) do do
     Server.add_expectation(mock, name, {0, [], code})
+  end
+
+  def stub(mock, name, resp) do
+    code = fn(_request, _stream) -> resp end
+
+    stub(mock, name, code)
   end
 
   def verify!(mock) do
