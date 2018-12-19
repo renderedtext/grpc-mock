@@ -6,11 +6,13 @@ defmodule GrpcMock.Mixfile do
 
   def project do
     [app: :grpc_mock,
-     version: "0.2.0",
+     version: "0.2.1",
      elixir: "~> 1.6",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      elixirc_paths: elixirc_paths(Mix.env),
+     description: description(),
+     package: package(),
      deps: deps()]
   end
 
@@ -27,6 +29,23 @@ defmodule GrpcMock.Mixfile do
     [
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:grpc, "~> 0.3"},
+      {:ex_doc, "~> 0.18.0", only: :dev}
+    ]
+  end
+
+  defp description do
+    """
+    GrpcMock is mocking library for [Elixir gRPC implementation](https://github.com/tony612/grpc-elixir).
+    It provides seamless mock creation based on `pb.ex` definition and
+    usual mocking "expect" - "verify" mechanisms.
+    """
+  end
+
+  defp package do
+    [
+      maintainers: ["Predrag Rakic"],
+      licenses: ["Apache License, Version 2.0"],
+      links: %{"GitHub" => "https://github.com/renderedtext/grpc-mock"}
     ]
   end
 end
