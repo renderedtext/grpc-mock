@@ -19,7 +19,7 @@ defmodule GrpcMockTest do
     {:ok, %{channel: channel}}
   end
 
-  test "use stub - struct", %{channel: channel} do
+  test "stub - struct", %{channel: channel} do
     sum = 12
     @mock
     |> stub(:add, AddResponse.new(sum: 12))
@@ -32,7 +32,7 @@ defmodule GrpcMockTest do
     GrpcMock.verify!(@mock)
   end
 
-  test "use stub - func", %{channel: channel} do
+  test "stub - func", %{channel: channel} do
     x = 13
 
     @mock
@@ -42,6 +42,20 @@ defmodule GrpcMockTest do
     assert {:ok, reply} = channel |> Stub.add(request)
 
     assert reply.sum == x
+
+    GrpcMock.verify!(@mock)
+  end
+
+  test "expect - struct", %{channel: channel} do
+    sum = 12
+
+    @mock
+    |> expect(:add, AddResponse.new(sum: 12))
+
+    request = AddRequest.new()
+    assert {:ok, reply} = channel |> Stub.add(request)
+
+    assert reply.sum == sum
 
     GrpcMock.verify!(@mock)
   end

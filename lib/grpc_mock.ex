@@ -95,46 +95,37 @@ defmodule GrpcMock do
   Expect the `name` operation to be called `n` times.
 
   ## Examples
+  If `code_or_value` is a function, it will be invoked as stub body.
   To expect `add` to be called five times:
 
       expect(MyMock, :add, 5, fn request, stream -> ... end)
 
+  If `code_or_value` is anything other than a function,
+  it will be stub return value.
+  To expect `add` to be called once:
+
+      expect(CalcMock, :add, AddResponse.new(sum: 12) end)
+
   `expect/4` can be invoked multiple times for the same `name`,
   allowing different behaviours on each invocation.
   """
-  def expect(mock, name, n \\ 1, code) do
-    calls = List.duplicate(code, n)
-    :ok = Server.add_expectation(mock, name, {n, calls, nil})
-
-    mock
-  end
+  def expect(mock, name, n \\ 1, code_or_value), do: do_expect(mock, name, n, code_or_value)
 
   @doc """
-  There can be only one stubbed function.
-  Number of expected invocations is not defined.
-
-  If third argument is function, it is invoked as body of the stubbed function.
+  Simmilar to `expect/4` but there can be only one stubbed function.
+  Number of expected invocations cannot be defined.
 
   ## Example
+  If `code_or_value` is a function, it will be invoked as stub body.
 
       stub(CalcMock, :add, fn(request, _) -> ... end)
 
-  If third argument is anything other ten a function,
-  it will be used as stub return value.
-
-  ## Example
+  If `code_or_value` is anything other than a function,
+  it will be stub return value.
 
       stub(CalcMock, :add, AddResponse.new(sum: 12) end)
   """
-  def stub(mock, name, code) when is_function(code) do
-    Server.add_expectation(mock, name, {0, [], code})
-  end
-
-  def stub(mock, name, resp) do
-    code = fn _request, _stream -> resp end
-
-    stub(mock, name, code)
-  end
+  def stub(mock, name, code_or_value), do: do_stub(mock, name, code_or_value)
 
   @doc """
   Verify that all operations for the specified mock are called expected number of times
@@ -166,6 +157,29 @@ defmodule GrpcMock do
 
   defp camel2snake(atom) do
     atom |> Atom.to_string() |> Macro.underscore() |> String.to_atom()
+  end
+
+  defp do_expect(mock, name, n, code) when is_function(code) do
+    calls = List.duplicate(code, n)
+    :ok = Server.add_expectation(mock, name, {n, calls, nil})
+
+    mock
+  end
+
+  defp do_expect(mock, name, n, resp) do
+    code = fn _request, _stream -> resp end
+
+    do_expect(mock, name, n, code)
+  end
+
+  defp do_stub(mock, name, code) when is_function(code) do
+    :ok = Server.add_expectation(mock, name, {0, [], code})
+  end
+
+  defp do_stub(mock, name, resp) do
+    code = fn _request, _stream -> resp end
+
+    do_stub(mock, name, code)
   end
 
   def __dispatch__(mock, fname, args) do
