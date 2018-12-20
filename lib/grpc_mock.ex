@@ -87,7 +87,8 @@ defmodule GrpcMock do
   end
 
   def __dispatch__(mock, fname, args) do
-    Server.fetch_fun(mock, fname)
+    mock
+    |> Server.fetch_fun(fname)
     |> case do
       :no_expectation ->
         mfa = Exception.format_mfa(mock, fname, args)

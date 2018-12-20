@@ -1,4 +1,6 @@
 defmodule Helloworld.HelloRequest do
+  @moduledoc false
+
   use Protobuf
 
   @type t :: %__MODULE__{
@@ -10,6 +12,8 @@ defmodule Helloworld.HelloRequest do
 end
 
 defmodule Helloworld.HelloReply do
+  @moduledoc false
+
   use Protobuf
 
   @type t :: %__MODULE__{
@@ -21,11 +25,15 @@ defmodule Helloworld.HelloReply do
 end
 
 defmodule Helloworld.Greeter.Service do
+  @moduledoc false
+
   use GRPC.Service, name: "helloworld.Greeter"
 
   rpc :SayHello, Helloworld.HelloRequest, Helloworld.HelloReply
 end
 
 defmodule Helloworld.Greeter.Stub do
+  @moduledoc false
+
   use GRPC.Stub, service: Helloworld.Greeter.Service
 end
