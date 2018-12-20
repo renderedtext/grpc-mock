@@ -1,6 +1,51 @@
 defmodule GrpcMock do
   @moduledoc """
-  Documentation for GrpcMock.
+  GrpcMock is library for easy gRPC server mocking to be used with
+  [grpc-elixir library](https://github.com/tony612/grpc-elixir).
+
+  ### Concurrency
+  Unlike `mox`, GrpcMock is not thread-safe and cannot be used in concurrent tests.
+
+  ## Example
+
+  As an example, imagine that your application is using a remote calculator,
+  with API defined in .proto file like this:
+
+      service Calculator {
+        rpc Add(AddRequest) returns (AddResponse);
+        rpc Mult(MultRequest) returns (MultResponse);
+      }
+
+  If you want to mock the calculator gRPC calls during tests, the first step
+  is to define the mock, usually in your `test_helper.exs`:
+
+      GrpcMock.defmock(CalcMock, for: Calculator)
+
+  Now in your tests, you can define expectations and verify them:
+
+      use ExUnit.Case
+
+      test "invokes add and mult" do
+        # Start the gRPC server
+        Server.start(CalcMock, 50_051)
+
+        # Connect to the serrver
+        {:ok, channel} = GRPC.Stub.connect("localhost:50051")
+
+        CalcMock
+        |> GrpcMock.expect(:add, fn req, _ -> AddResponse.new(sum: req.x + req.y) end)
+        |> GrpcMock.expect(:mult, fn req, _ -> AddResponse.new(sum: req.x * req.y) end)
+
+        request = AddRequest.new(x: 2, y: 3)
+        assert {:ok, reply} = channel |> Stub.add(request)
+        assert reply.sum == 5
+
+        request = MultRequest.new(x: 2, y: 3)
+        assert {:ok, reply} = channel |> Stub.mult(request)
+        assert reply.sum == 6
+
+        GrpcMock.verify!(CalcMock)
+      end
   """
 
   alias GrpcMock.Server
@@ -14,6 +59,11 @@ defmodule GrpcMock do
   end
 
   @doc """
+  Define mock in runtime based on specificatin on pb.ex file
+
+  ## Example
+
+      GrpcMock.defmock(CalcMock, for: Calculator)
   """
   def defmock(name, options) do
     service =
@@ -41,6 +91,17 @@ defmodule GrpcMock do
     end
   end
 
+  @doc """
+  Expect the `name` operation to be called `n` times.
+
+  ## Examples
+  To expect `add` to be called five times:
+
+      expect(MyMock, :add, 5, fn request, stream -> ... end)
+
+  `expect/4` can be invoked multiple times for the same `name`,
+  allowing different behaviours on each invocation.
+  """
   def expect(mock, name, n \\ 1, code) do
     calls = List.duplicate(code, n)
     :ok = Server.add_expectation(mock, name, {n, calls, nil})
@@ -48,6 +109,23 @@ defmodule GrpcMock do
     mock
   end
 
+  @doc """
+  There can be only one stubbed function.
+  Number of expected invocations is not defined.
+
+  If third argument is function, it is invoked as body of the stubbed function.
+
+  ## Example
+
+      stub(CalcMock, :add, fn(request, _) -> ... end)
+
+  If third argument is anything other ten a function,
+  it will be used as stub return value.
+
+  ## Example
+
+      stub(CalcMock, :add, AddResponse.new(sum: 12) end)
+  """
   def stub(mock, name, code) when is_function(code) do
     Server.add_expectation(mock, name, {0, [], code})
   end
@@ -58,6 +136,10 @@ defmodule GrpcMock do
     stub(mock, name, code)
   end
 
+  @doc """
+  Verify that all operations for the specified mock are called expected number of times
+  and remove all expectations for it.
+  """
   def verify!(mock) do
     pending = Server.verify(mock)
 
@@ -82,7 +164,7 @@ defmodule GrpcMock do
     end
   end
 
-  def camel2snake(atom) do
+  defp camel2snake(atom) do
     atom |> Atom.to_string() |> Macro.underscore() |> String.to_atom()
   end
 

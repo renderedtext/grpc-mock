@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+service Calculator {
+  rpc Add(AddRequest) returns (AddResponse);
+  rpc Mult(MultRequest) returns (MultResponse);
+}
+
+message AddRequest {
+  float x = 1;
+  float y = 2;
+}
+
+message AddResponse {
+  float sum = 1;
+}
+
+message MultRequest {
+  float x = 1;
+  float y = 2;
+}
+
+message MultResponse {
+  float prod = 1;
+}

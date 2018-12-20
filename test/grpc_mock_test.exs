@@ -3,11 +3,13 @@ defmodule GrpcMockTest do
   doctest GrpcMock
 
   alias GRPC.Server
-  alias Helloworld.{Greeter.Stub, HelloReply, HelloRequest}
+  alias Calculator.Stub
+  alias AddResponse
+  alias AddRequest
 
   import GrpcMock
 
-  @mock HelloServer
+  @mock CalcMock
 
   setup_all do
     Server.start(@mock, 50_051)
@@ -17,70 +19,96 @@ defmodule GrpcMockTest do
     {:ok, %{channel: channel}}
   end
 
-  test "use stub - content = qwerty", %{channel: channel} do
+  test "use stub - struct", %{channel: channel} do
+    sum = 12
     @mock
-    |> stub(:say_hello, fn _req, _ -> HelloReply.new(message: "qwerty") end)
+    |> stub(:add, AddResponse.new(sum: 12))
 
-    request = HelloRequest.new()
-    assert {:ok, reply} = channel |> Stub.say_hello(request)
+    request = AddRequest.new()
+    assert {:ok, reply} = channel |> Stub.add(request)
 
-    assert reply.message == "qwerty"
+    assert reply.sum == sum
 
     GrpcMock.verify!(@mock)
   end
 
-  test "use stub - content = asdfgh", %{channel: channel} do
-    content = "asdfgh"
+  test "use stub - func", %{channel: channel} do
+    x = 13
 
     @mock
-    |> stub(:say_hello, fn req, _ -> HelloReply.new(message: req.name) end)
+    |> stub(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
 
-    request = HelloRequest.new(name: content)
-    assert {:ok, reply} = channel |> Stub.say_hello(request)
+    request = AddRequest.new(x: x)
+    assert {:ok, reply} = channel |> Stub.add(request)
 
-    assert reply.message == content
+    assert reply.sum == x
+
+    GrpcMock.verify!(@mock)
+  end
+
+  test "expect - multiple operations", %{channel: channel} do
+    x = 2
+    y = 3
+    sum = x + y
+    prod = x * y
+
+    @mock
+    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x + req.y) end)
+    |> expect(:mult, fn req, _ -> AddResponse.new(sum: req.x * req.y) end)
+
+    request = AddRequest.new(x: x, y: y)
+    assert {:ok, reply} = channel |> Stub.add(request)
+    assert reply.sum == sum
+
+    request = MultRequest.new(x: x, y: y)
+    assert {:ok, reply} = channel |> Stub.mult(request)
+    assert reply.prod == prod
 
     GrpcMock.verify!(@mock)
   end
 
   test "expect - one invocation", %{channel: channel} do
-    content = "asdfgh"
+    x = 5
 
     @mock
-    |> expect(:say_hello, fn req, _ -> HelloReply.new(message: req.name) end)
+    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
 
-    request = HelloRequest.new(name: content)
-    assert {:ok, reply} = channel |> Stub.say_hello(request)
+    request = AddRequest.new(x: x)
+    assert {:ok, reply} = channel |> Stub.add(request)
 
-    assert reply.message == content
+    assert reply.sum == x
 
     GrpcMock.verify!(@mock)
   end
 
-  test "expect - two invocations", %{channel: channel} do
-    content = "asdfgh"
+  test "expect - 3 invocations", %{channel: channel} do
+    x = 9
+    sum = 42
 
     @mock
-    |> expect(:say_hello, fn req, _ -> HelloReply.new(message: req.name) end)
-    |> expect(:say_hello, fn _, _ -> HelloReply.new(message: "fred") end)
+    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
+    |> expect(:add, 2, fn _, _ -> AddResponse.new(sum: sum) end)
 
-    request = HelloRequest.new(name: content)
-    assert {:ok, reply} = channel |> Stub.say_hello(request)
-    assert reply.message == content
+    request = AddRequest.new(x: x)
+    assert {:ok, reply} = channel |> Stub.add(request)
+    assert reply.sum == x
 
-    assert {:ok, reply} = channel |> Stub.say_hello(request)
-    assert reply.message == "fred"
+    assert {:ok, reply} = channel |> Stub.add(request)
+    assert reply.sum == sum
+
+    assert {:ok, reply} = channel |> Stub.add(request)
+    assert reply.sum == sum
 
     GrpcMock.verify!(@mock)
   end
 
   test "expect - fail" do
     @mock
-    |> expect(:say_hello, fn req, _ -> HelloReply.new(message: req.name) end)
+    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
 
     assert_raise(
       GrpcMock.VerificationError,
-      ~r/HelloServer.say_hello.*invoked 0 times/,
+      ~r/CalcMock.add.*invoked 0 times/,
       fn -> GrpcMock.verify!(@mock) end
     )
   end
