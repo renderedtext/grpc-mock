@@ -6,11 +6,11 @@ defmodule GrpcMock do
   alias GrpcMock.Server
 
   defmodule UnexpectedCallError do
-      defexception [:message]
+    defexception [:message]
   end
 
   defmodule VerificationError do
-      defexception [:message]
+    defexception [:message]
   end
 
   @doc """
@@ -38,7 +38,6 @@ defmodule GrpcMock do
           GrpcMock.__dispatch__(unquote(name), unquote(fname_snake), [request, stream])
         end
       end
-
     end
   end
 
@@ -54,7 +53,7 @@ defmodule GrpcMock do
   end
 
   def stub(mock, name, resp) do
-    code = fn(_request, _stream) -> resp end
+    code = fn _request, _stream -> resp end
 
     stub(mock, name, code)
   end
@@ -62,11 +61,12 @@ defmodule GrpcMock do
   def verify!(mock) do
     pending = Server.verify(mock)
 
-    messages = for {fname, total, remaining} <- pending do
-      mfa = Exception.format_mfa(mock, fname, 2)
-      called = total - remaining
-      "  * expected #{mfa} to be invoked #{times(total)} but it was invoked #{times(called)}"
-    end
+    messages =
+      for {fname, total, remaining} <- pending do
+        mfa = Exception.format_mfa(mock, fname, 2)
+        called = total - remaining
+        "  * expected #{mfa} to be invoked #{times(total)} but it was invoked #{times(called)}"
+      end
 
     if messages != [] do
       raise VerificationError,
@@ -87,7 +87,8 @@ defmodule GrpcMock do
   end
 
   def __dispatch__(mock, fname, args) do
-    Server.fetch_fun(mock, fname)
+    mock
+    |> Server.fetch_fun(fname)
     |> case do
       :no_expectation ->
         mfa = Exception.format_mfa(mock, fname, args)

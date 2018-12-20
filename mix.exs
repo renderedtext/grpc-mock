@@ -5,15 +5,17 @@ defmodule GrpcMock.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :grpc_mock,
-     version: "0.2.1",
-     elixir: "~> 1.6",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     elixirc_paths: elixirc_paths(Mix.env),
-     description: description(),
-     package: package(),
-     deps: deps()]
+    [
+      app: :grpc_mock,
+      version: "0.2.1",
+      elixir: "~> 1.6",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      description: description(),
+      package: package(),
+      deps: deps()
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -21,8 +23,7 @@ defmodule GrpcMock.Mixfile do
 
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger],
-     mod: {GrpcMock.Application, []}]
+    [extra_applications: [:logger], mod: {GrpcMock.Application, []}]
   end
 
   defp deps do

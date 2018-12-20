@@ -20,13 +20,14 @@ defmodule GrpcMock.Server do
   end
 
   def init(:ok) do
-     {:ok, %{}}
+    {:ok, %{}}
   end
 
   def handle_call({:add_expectation, mock, fname, expectation}, _from, state) do
-    state = update_in(state, [Access.key(mock, %{}), Access.key(fname, nil)], fn owned_expectations ->
-      merge_expectations(owned_expectations, expectation)
-    end)
+    state =
+      update_in(state, [Access.key(mock, %{}), Access.key(fname, nil)], fn owned_expectations ->
+        merge_expectations(owned_expectations, expectation)
+      end)
 
     {:reply, :ok, state}
   end
@@ -49,9 +50,10 @@ defmodule GrpcMock.Server do
   end
 
   def handle_call({:verify, mock}, _from, state) do
-    pending = for {fname, {total, [_ | _] = calls, _}} <- Map.get(state, mock, %{}) do
-      {fname, total, length(calls)}
-    end
+    pending =
+      for {fname, {total, [_ | _] = calls, _}} <- Map.get(state, mock, %{}) do
+        {fname, total, length(calls)}
+      end
 
     new_state = state |> Map.delete(mock)
 
@@ -59,6 +61,7 @@ defmodule GrpcMock.Server do
   end
 
   defp merge_expectations(nil, expectation), do: expectation
+
   defp merge_expectations({current_n, current_calls, current_stub}, {n, calls, stub}) do
     {current_n + n, current_calls ++ calls, stub || current_stub}
   end
