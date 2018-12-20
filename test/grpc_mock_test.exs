@@ -78,8 +78,10 @@ defmodule GrpcMockTest do
     @mock
     |> expect(:say_hello, fn req, _ -> HelloReply.new(message: req.name) end)
 
-    assert_raise(GrpcMock.VerificationError,
+    assert_raise(
+      GrpcMock.VerificationError,
       ~r/HelloServer.say_hello.*invoked 0 times/,
-      fn -> GrpcMock.verify!(@mock) end)
+      fn -> GrpcMock.verify!(@mock) end
+    )
   end
 end

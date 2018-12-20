@@ -8,7 +8,7 @@ defmodule Helloworld.HelloRequest do
         }
   defstruct [:name]
 
-  field :name, 1, optional: true, type: :string
+  field(:name, 1, optional: true, type: :string)
 end
 
 defmodule Helloworld.HelloReply do
@@ -21,7 +21,7 @@ defmodule Helloworld.HelloReply do
         }
   defstruct [:message]
 
-  field :message, 1, optional: true, type: :string
+  field(:message, 1, optional: true, type: :string)
 end
 
 defmodule Helloworld.Greeter.Service do
@@ -29,7 +29,7 @@ defmodule Helloworld.Greeter.Service do
 
   use GRPC.Service, name: "helloworld.Greeter"
 
-  rpc :SayHello, Helloworld.HelloRequest, Helloworld.HelloReply
+  rpc(:SayHello, Helloworld.HelloRequest, Helloworld.HelloReply)
 end
 
 defmodule Helloworld.Greeter.Stub do
