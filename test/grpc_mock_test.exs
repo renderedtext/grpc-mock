@@ -126,4 +126,27 @@ defmodule GrpcMockTest do
       fn -> GrpcMock.verify!(@mock) end
     )
   end
+
+  test "mix expect and stub", %{channel: channel} do
+    x = 9
+    prod = 42
+
+    @mock
+    |> stub(:mult, fn _, _ -> MultResponse.new(prod: prod) end)
+    |> expect(:add, 2, fn req, _ -> AddResponse.new(sum: req.x) end)
+
+    request = AddRequest.new(x: x)
+    assert {:ok, reply} = channel |> Stub.add(request)
+    assert reply.sum == x
+
+    request = MultRequest.new()
+    assert {:ok, reply} = channel |> Stub.mult(request)
+    assert reply.prod == prod
+
+    request = AddRequest.new(x: x)
+    assert {:ok, reply} = channel |> Stub.add(request)
+    assert reply.sum == x
+
+    GrpcMock.verify!(@mock)
+  end
 end

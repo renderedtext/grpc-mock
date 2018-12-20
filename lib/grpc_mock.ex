@@ -174,6 +174,8 @@ defmodule GrpcMock do
 
   defp do_stub(mock, name, code) when is_function(code) do
     :ok = Server.add_expectation(mock, name, {0, [], code})
+
+    mock
   end
 
   defp do_stub(mock, name, resp) do
