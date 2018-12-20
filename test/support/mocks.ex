@@ -1,1 +1,1 @@
-GrpcMock.defmock(HelloServer, for: Helloworld.Greeter.Service)
+GrpcMock.defmock(CalcMock, for: Calculator.Service)
