@@ -7,7 +7,7 @@ See [documentation](https://hexdocs.pm/grpc_mock/) for more information.
 ## Installation
 Add `GrpcMock` to the list of dependencies in mix.exs:
 ```
-{:grpc_mock, "~> 0.2", only: :test}
+{:grpc_mock, "~> 0.3", only: :test}
 ```
 
 ## License
