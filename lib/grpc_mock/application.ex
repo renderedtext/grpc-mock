@@ -12,7 +12,7 @@ defmodule GrpcMock.Application do
     children = [
       # Starts a worker by calling: GrpcMock.Worker.start_link(arg1, arg2, arg3)
       # worker(GrpcMock.Worker, [arg1, arg2, arg3]),
-      GrpcMock.Server,
+      GrpcMock.Server
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
