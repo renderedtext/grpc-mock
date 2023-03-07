@@ -55,9 +55,10 @@ defmodule GrpcMock.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:grpc, "~> 0.3"},
-      {:ex_doc, "~> 0.18.0", only: :dev}
+      {:credo, "~> 1.6.7", only: [:dev, :test], runtime: false},
+      {:grpc, "~> 0.5"},
+      {:protobuf, "~> 0.11"},
+      {:ex_doc, "~> 0.29", only: :dev}
     ]
   end
 end

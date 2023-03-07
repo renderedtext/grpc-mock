@@ -1,12 +1,6 @@
 defmodule AddRequest do
   @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          x: float,
-          y: float
-        }
-  defstruct [:x, :y]
+  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto3
 
   field :x, 1, type: :float
   field :y, 2, type: :float
@@ -14,25 +8,14 @@ end
 
 defmodule AddResponse do
   @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          sum: float
-        }
-  defstruct [:sum]
+  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto3
 
   field :sum, 1, type: :float
 end
 
 defmodule MultRequest do
   @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          x: float,
-          y: float
-        }
-  defstruct [:x, :y]
+  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto3
 
   field :x, 1, type: :float
   field :y, 2, type: :float
@@ -40,21 +23,17 @@ end
 
 defmodule MultResponse do
   @moduledoc false
-  use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          prod: float
-        }
-  defstruct [:prod]
+  use Protobuf, protoc_gen_elixir_version: "0.11.0", syntax: :proto3
 
   field :prod, 1, type: :float
 end
 
 defmodule Calculator.Service do
   @moduledoc false
-  use GRPC.Service, name: "Calculator"
+  use GRPC.Service, name: "Calculator", protoc_gen_elixir_version: "0.11.0"
 
   rpc :Add, AddRequest, AddResponse
+
   rpc :Mult, MultRequest, MultResponse
 end
 
