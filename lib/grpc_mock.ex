@@ -80,7 +80,7 @@ defmodule GrpcMock do
   end
 
   defp generate_mocked_funs(rpc_calls, name) do
-    for {fname_camel_atom, _, _} <- rpc_calls do
+    for {fname_camel_atom, _, _, _} <- rpc_calls do
       fname_snake = camel2snake(fname_camel_atom)
 
       quote do
