@@ -29,7 +29,7 @@ defmodule GrpcMock do
         # Start the gRPC server
         Server.start(CalcMock, 50_051)
 
-        # Connect to the serrver
+        # Connect to the server
         {:ok, channel} = GRPC.Stub.connect("localhost:50051")
 
         CalcMock
@@ -59,7 +59,7 @@ defmodule GrpcMock do
   end
 
   @doc """
-  Define mock in runtime based on specificatin on pb.ex file
+  Define mock in runtime based on specification on pb.ex file
 
   ## Example
 
@@ -112,7 +112,7 @@ defmodule GrpcMock do
   def expect(mock, name, n \\ 1, code_or_value), do: do_expect(mock, name, n, code_or_value)
 
   @doc """
-  Simmilar to `expect/4` but there can be only one stubbed function.
+  Similar to `expect/4` but there can be only one stubbed function.
   Number of expected invocations cannot be defined.
 
   ## Example
@@ -128,7 +128,7 @@ defmodule GrpcMock do
   def stub(mock, name, code_or_value), do: do_stub(mock, name, code_or_value)
 
   @doc """
-  Verify that all operations for the specified mock are called expected number of times
+  Verify that all operations for the specified mock are called the expected number of times
   and remove all expectations for it.
   """
   def verify!(mock) do
