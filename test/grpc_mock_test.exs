@@ -22,9 +22,9 @@ defmodule GrpcMockTest do
   test "stub - struct", %{channel: channel} do
     sum = 12
     @mock
-    |> stub(:add, AddResponse.new(sum: 12))
+    |> stub(:add, %AddResponse{sum: 12})
 
-    request = AddRequest.new()
+    request = %AddRequest{}
     assert {:ok, reply} = channel |> Stub.add(request)
 
     assert reply.sum == sum
@@ -36,9 +36,9 @@ defmodule GrpcMockTest do
     x = 13
 
     @mock
-    |> stub(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
+    |> stub(:add, fn req, _ -> %AddResponse{sum: req.x} end)
 
-    request = AddRequest.new(x: x)
+    request = %AddRequest{x: x}
     assert {:ok, reply} = channel |> Stub.add(request)
 
     assert reply.sum == x
@@ -50,9 +50,9 @@ defmodule GrpcMockTest do
     sum = 12
 
     @mock
-    |> expect(:add, AddResponse.new(sum: 12))
+    |> expect(:add, %AddResponse{sum: 12})
 
-    request = AddRequest.new()
+    request = %AddRequest{}
     assert {:ok, reply} = channel |> Stub.add(request)
 
     assert reply.sum == sum
@@ -67,14 +67,14 @@ defmodule GrpcMockTest do
     prod = x * y
 
     @mock
-    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x + req.y) end)
-    |> expect(:mult, fn req, _ -> AddResponse.new(sum: req.x * req.y) end)
+    |> expect(:add, fn req, _ -> %AddResponse{sum: req.x + req.y} end)
+    |> expect(:mult, fn req, _ -> %AddResponse{sum: req.x * req.y} end)
 
-    request = AddRequest.new(x: x, y: y)
+    request = %AddRequest{x: x, y: y}
     assert {:ok, reply} = channel |> Stub.add(request)
     assert reply.sum == sum
 
-    request = MultRequest.new(x: x, y: y)
+    request = %MultRequest{x: x, y: y}
     assert {:ok, reply} = channel |> Stub.mult(request)
     assert reply.prod == prod
 
@@ -85,9 +85,9 @@ defmodule GrpcMockTest do
     x = 5
 
     @mock
-    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
+    |> expect(:add, fn req, _ -> %AddResponse{sum: req.x} end)
 
-    request = AddRequest.new(x: x)
+    request = %AddRequest{x: x}
     assert {:ok, reply} = channel |> Stub.add(request)
 
     assert reply.sum == x
@@ -100,10 +100,10 @@ defmodule GrpcMockTest do
     sum = 42
 
     @mock
-    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
-    |> expect(:add, 2, fn _, _ -> AddResponse.new(sum: sum) end)
+    |> expect(:add, fn req, _ -> %AddResponse{sum: req.x} end)
+    |> expect(:add, 2, fn _, _ -> %AddResponse{sum: sum} end)
 
-    request = AddRequest.new(x: x)
+    request = %AddRequest{x: x}
     assert {:ok, reply} = channel |> Stub.add(request)
     assert reply.sum == x
 
@@ -118,7 +118,7 @@ defmodule GrpcMockTest do
 
   test "expect - fail" do
     @mock
-    |> expect(:add, fn req, _ -> AddResponse.new(sum: req.x) end)
+    |> expect(:add, fn req, _ -> %AddResponse{sum: req.x} end)
 
     assert_raise(
       GrpcMock.VerificationError,
@@ -132,18 +132,18 @@ defmodule GrpcMockTest do
     prod = 42
 
     @mock
-    |> stub(:mult, fn _, _ -> MultResponse.new(prod: prod) end)
-    |> expect(:add, 2, fn req, _ -> AddResponse.new(sum: req.x) end)
+    |> stub(:mult, fn _, _ -> %MultResponse{prod: prod} end)
+    |> expect(:add, 2, fn req, _ -> %AddResponse{sum: req.x} end)
 
-    request = AddRequest.new(x: x)
+    request = %AddRequest{x: x}
     assert {:ok, reply} = channel |> Stub.add(request)
     assert reply.sum == x
 
-    request = MultRequest.new()
+    request = %MultRequest{}
     assert {:ok, reply} = channel |> Stub.mult(request)
     assert reply.prod == prod
 
-    request = AddRequest.new(x: x)
+    request = %AddRequest{x: x}
     assert {:ok, reply} = channel |> Stub.add(request)
     assert reply.sum == x
 
