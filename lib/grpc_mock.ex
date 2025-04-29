@@ -80,7 +80,8 @@ defmodule GrpcMock do
   end
 
   defp generate_mocked_funs(rpc_calls, name) do
-    for {fname_camel_atom, _, _} <- rpc_calls do
+    for rpc_call <- rpc_calls do
+      fname_camel_atom = extract_function_name(rpc_call)
       fname_snake = camel2snake(fname_camel_atom)
 
       quote do
@@ -90,6 +91,10 @@ defmodule GrpcMock do
       end
     end
   end
+
+  # The tuple has different number of elements depending on the version of grpc-elixir
+  defp extract_function_name({fname_camel_atom, _, _}), do: fname_camel_atom
+  defp extract_function_name({fname_camel_atom, _, _, _}), do: fname_camel_atom
 
   @doc """
   Expect the `name` operation to be called `n` times.
