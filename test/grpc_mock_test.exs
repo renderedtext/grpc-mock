@@ -21,6 +21,7 @@ defmodule GrpcMockTest do
 
   test "stub - struct", %{channel: channel} do
     sum = 12
+
     @mock
     |> stub(:add, AddResponse.new(sum: 12))
 
